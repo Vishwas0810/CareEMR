@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CareEMR.Api/CareEMR.Api.csproj" />
+    <Project Path="src/CareEMR.Application/CareEMR.Application.csproj" />
+    <Project Path="src/CareEMR.Domain/CareEMR.Domain.csproj" />
+    <Project Path="src/CareEMR.Infrastructure/CareEMR.Infrastructure.csproj" />
+  </Folder>
+</Solution>

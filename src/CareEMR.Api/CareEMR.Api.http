@@ -1,0 +1,6 @@
+@CareEMR.Api_HostAddress = http://localhost:5082
+
+GET {{CareEMR.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
