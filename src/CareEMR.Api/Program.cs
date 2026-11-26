@@ -1,8 +1,17 @@
+using CareEMR.Infrastructure;
+
+
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+var connectionString = builder.Configuration.GetConnectionString("CareEmr")
+    ?? throw new InvalidOperationException("Connection string 'CareEmr' not found.");
+
+builder.Services.AddInfrastructure(connectionString);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
