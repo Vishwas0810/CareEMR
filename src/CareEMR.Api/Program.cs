@@ -61,8 +61,10 @@ builder.Services.AddOpenApi(options =>
 
 var app = builder.Build();
 
-// Off by default; docker-compose turns it on so the container creates its own tables.
-if (app.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
+// Auto-apply EF Core migrations in Development only (local dotnet run and docker-compose,
+// which runs the container as Development). Production schema changes should be a deliberate,
+// reviewed deployment step, never a side effect of an app restart.
+if (app.Environment.IsDevelopment())
     await app.Services.ApplyMigrationsAsync();
 
 // ---------- HTTP pipeline ----------

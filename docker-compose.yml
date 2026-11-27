@@ -1,7 +1,7 @@
 # Runs the API and PostgreSQL together for a local demo.
-#   1. cp .env.example .env   (then edit the values in .env)
-#   2. docker compose up --build
-#   3. open http://localhost:8080/scalar
+#   One-time setup:  cp .env.example .env   (then replace the values in .env)
+#   One command:     docker compose up --build
+#   Then open:       http://localhost:8080/scalar
 # All secrets come from the gitignored .env file.
 
 services:
@@ -27,11 +27,11 @@ services:
     ports:
       - "8080:8080"
     environment:
-      # Development = Scalar docs at /scalar. This compose file is for local demos only.
+      # Development = Scalar docs at /scalar + migrations applied on startup.
+      # This compose file is for local demos only.
       ASPNETCORE_ENVIRONMENT: Development
       # Double underscore (__) = nested config key, e.g. Jwt__SigningKey -> Jwt:SigningKey
       ConnectionStrings__CareEmr: "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
-      Database__ApplyMigrationsOnStartup: "true"
       Jwt__SigningKey: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY in .env}
       DemoUser__Username: ${DEMO_USERNAME:?Set DEMO_USERNAME in .env}
       DemoUser__Password: ${DEMO_PASSWORD:?Set DEMO_PASSWORD in .env}

@@ -19,7 +19,8 @@ public static class DependencyInjection
     }
 
     // Creates/updates the database schema by applying any pending EF Core migrations.
-    // Used by Docker so a fresh database is ready without running "dotnet ef" by hand.
+    // Called in Development (including docker-compose) so a fresh database is ready
+    // without running "dotnet ef database update" by hand.
     public static async Task ApplyMigrationsAsync(this IServiceProvider services)
     {
         using var scope = services.CreateScope();
