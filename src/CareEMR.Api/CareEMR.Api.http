@@ -1,6 +1,52 @@
 @CareEMR.Api_HostAddress = http://localhost:5082
 
-GET {{CareEMR.Api_HostAddress}}/weatherforecast/
+# FAKE TEST DATA ONLY - never use real patient information here.
+
+### 1. Create a patient (expect 201 Created)
+# @name createPatient
+POST {{CareEMR.Api_HostAddress}}/api/patients
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "Patient",
+  "dateOfBirth": "1985-04-12",
+  "healthCardNumber": "1234-567-890",
+  "healthCardVersionCode": "ab",
+  "phone": "555-0100",
+  "email": "test.patient@example.com"
+}
+
+### 2. List all patients (expect 200 OK)
+GET {{CareEMR.Api_HostAddress}}/api/patients
 Accept: application/json
 
-###
+### 3. Get the patient created in request 1 (expect 200 OK)
+GET {{CareEMR.Api_HostAddress}}/api/patients/{{createPatient.response.body.$.id}}
+Accept: application/json
+
+### 4. Unknown id (expect 404 Not Found)
+GET {{CareEMR.Api_HostAddress}}/api/patients/00000000-0000-0000-0000-000000000000
+Accept: application/json
+
+### 5. Same health card again (expect 409 Conflict)
+POST {{CareEMR.Api_HostAddress}}/api/patients
+Content-Type: application/json
+
+{
+  "firstName": "Another",
+  "lastName": "Tester",
+  "dateOfBirth": "1990-01-01",
+  "healthCardNumber": "1234567890"
+}
+
+### 6. Invalid health card (expect 400 Bad Request)
+POST {{CareEMR.Api_HostAddress}}/api/patients
+Content-Type: application/json
+
+{
+  "firstName": "Bad",
+  "lastName": "Card",
+  "dateOfBirth": "1990-01-01",
+  "healthCardNumber": "12345"
+}
