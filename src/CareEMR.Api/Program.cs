@@ -61,6 +61,10 @@ builder.Services.AddOpenApi(options =>
 
 var app = builder.Build();
 
+// Off by default; docker-compose turns it on so the container creates its own tables.
+if (app.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
+    await app.Services.ApplyMigrationsAsync();
+
 // ---------- HTTP pipeline ----------
 
 if (app.Environment.IsDevelopment())

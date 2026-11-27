@@ -1,0 +1,40 @@
+# Runs the API and PostgreSQL together for a local demo.
+#   1. cp .env.example .env   (then edit the values in .env)
+#   2. docker compose up --build
+#   3. open http://localhost:8080/scalar
+# All secrets come from the gitignored .env file.
+
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy   # wait until PostgreSQL accepts connections
+    ports:
+      - "8080:8080"
+    environment:
+      # Development = Scalar docs at /scalar. This compose file is for local demos only.
+      ASPNETCORE_ENVIRONMENT: Development
+      # Double underscore (__) = nested config key, e.g. Jwt__SigningKey -> Jwt:SigningKey
+      ConnectionStrings__CareEmr: "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      Database__ApplyMigrationsOnStartup: "true"
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY in .env}
+      DemoUser__Username: ${DEMO_USERNAME:?Set DEMO_USERNAME in .env}
+      DemoUser__Password: ${DEMO_PASSWORD:?Set DEMO_PASSWORD in .env}
+
+volumes:
+  pgdata:
