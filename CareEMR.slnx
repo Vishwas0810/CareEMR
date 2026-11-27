@@ -6,6 +6,7 @@
     <Project Path="src/CareEMR.Infrastructure/CareEMR.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/CareEMR.Application.Tests/CareEMR.Application.Tests.csproj" />
     <Project Path="tests/CareEMR.Domain.Tests/CareEMR.Domain.Tests.csproj" />
   </Folder>
 </Solution>

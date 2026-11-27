@@ -58,6 +58,60 @@ public class PatientTests
         Assert.Equal(today, patient.DateOfBirth);
     }
 
+    [Fact]
+    public void NewPatient_IsActive()
+    {
+        Assert.True(NewPatient().IsActive);
+    }
+
+    // ---------- UpdateDetails ----------
+
+    [Fact]
+    public void UpdateDetails_WithValidData_ChangesAndTrimsValues()
+    {
+        var patient = NewPatient();
+        var newDob = new DateOnly(1990, 1, 1);
+
+        patient.UpdateDetails(" Testy ", " Updated ", newDob);
+
+        Assert.Equal("Testy", patient.FirstName);
+        Assert.Equal("Updated", patient.LastName);
+        Assert.Equal(newDob, patient.DateOfBirth);
+    }
+
+    [Theory]
+    [InlineData("", "Patient")]
+    [InlineData("Test", "  ")]
+    public void UpdateDetails_WithBlankName_Throws(string firstName, string lastName)
+    {
+        var patient = NewPatient();
+
+        Assert.Throws<ArgumentException>(() => patient.UpdateDetails(firstName, lastName, ValidDob));
+        Assert.Equal("Test", patient.FirstName); // unchanged
+    }
+
+    [Fact]
+    public void UpdateDetails_WithFutureDateOfBirth_Throws()
+    {
+        var patient = NewPatient();
+        var tomorrow = DateOnly.FromDateTime(DateTime.Today).AddDays(1);
+
+        Assert.Throws<ArgumentException>(() => patient.UpdateDetails("Test", "Patient", tomorrow));
+        Assert.Equal(ValidDob, patient.DateOfBirth); // unchanged
+    }
+
+    // ---------- Deactivate ----------
+
+    [Fact]
+    public void Deactivate_SetsIsActiveToFalse()
+    {
+        var patient = NewPatient();
+
+        patient.Deactivate();
+
+        Assert.False(patient.IsActive);
+    }
+
     // ---------- SetHealthCard ----------
 
     [Theory]
