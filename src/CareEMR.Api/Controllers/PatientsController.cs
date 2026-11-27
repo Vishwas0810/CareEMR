@@ -1,4 +1,5 @@
 using CareEMR.Application.Patients;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CareEMR.Api.Controllers;
@@ -6,6 +7,8 @@ namespace CareEMR.Api.Controllers;
 [ApiController]
 [Route("api/patients")]
 [Produces("application/json")]
+[Authorize] // every endpoint here needs a valid JWT
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class PatientsController : ControllerBase
 {
     private readonly PatientService _service;
