@@ -49,4 +49,31 @@ public class PatientsController : ControllerBase
         var patient = await _service.GetByIdAsync(id, ct);
         return patient is null ? NotFound() : patient;
     }
+
+    // PUT /api/patients/{id}
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<PatientResponse>> Update(Guid id, UpdatePatientRequest request, CancellationToken ct)
+    {
+        try
+        {
+            var updated = await _service.UpdateAsync(id, request, ct);
+            return updated is null ? NotFound() : updated;
+        }
+        catch (ArgumentException ex)
+        {
+            return Problem(detail: ex.Message, statusCode: StatusCodes.Status400BadRequest);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(detail: ex.Message, statusCode: StatusCodes.Status409Conflict);
+        }
+    }
+
+    // DELETE /api/patients/{id}  (soft delete)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        var deleted = await _service.DeleteAsync(id, ct);
+        return deleted ? NoContent() : NotFound();
+    }
 }

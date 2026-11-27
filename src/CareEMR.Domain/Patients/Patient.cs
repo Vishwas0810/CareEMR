@@ -11,11 +11,17 @@ public class Patient
     public string? Phone { get; private set; }
     public string? Email { get; private set; }
     public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
+    public bool IsActive { get; private set; } = true;
 
     // Needed by the database layer (EF Core)
     private Patient() { }
 
     public Patient(string firstName, string lastName, DateOnly dateOfBirth)
+    {
+        UpdateDetails(firstName, lastName, dateOfBirth);
+    }
+
+    public void UpdateDetails(string firstName, string lastName, DateOnly dateOfBirth)
     {
         if (string.IsNullOrWhiteSpace(firstName))
             throw new ArgumentException("First name is required.");
@@ -28,6 +34,9 @@ public class Patient
         LastName = lastName.Trim();
         DateOfBirth = dateOfBirth;
     }
+
+    // Soft delete: the record stays in the database but is hidden from the API.
+    public void Deactivate() => IsActive = false;
 
     public void SetHealthCard(string? number, string? versionCode)
     {

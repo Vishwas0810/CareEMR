@@ -20,13 +20,47 @@ public class PatientService
 
         // Check using the cleaned-up number (spaces/dashes removed by SetHealthCard).
         if (patient.HealthCardNumber is not null &&
-            await _repository.HealthCardExistsAsync(patient.HealthCardNumber, ct))
+            await _repository.HealthCardExistsAsync(patient.HealthCardNumber, ct: ct))
         {
             throw new InvalidOperationException("A patient with this health card number already exists.");
         }
 
         await _repository.AddAsync(patient, ct);
         return ToResponse(patient);
+    }
+
+    // Returns null if the patient doesn't exist (or was deleted).
+    public async Task<PatientResponse?> UpdateAsync(Guid id, UpdatePatientRequest request, CancellationToken ct = default)
+    {
+        var patient = await _repository.GetByIdAsync(id, ct);
+        if (patient is null)
+            return null;
+
+        // Same domain validation as create.
+        patient.UpdateDetails(request.FirstName, request.LastName, request.DateOfBirth);
+        patient.SetHealthCard(request.HealthCardNumber, request.HealthCardVersionCode);
+        patient.UpdateContact(request.Phone, request.Email);
+
+        if (patient.HealthCardNumber is not null &&
+            await _repository.HealthCardExistsAsync(patient.HealthCardNumber, excludePatientId: id, ct))
+        {
+            throw new InvalidOperationException("A patient with this health card number already exists.");
+        }
+
+        await _repository.UpdateAsync(patient, ct);
+        return ToResponse(patient);
+    }
+
+    // Soft delete. Returns false if the patient doesn't exist (or was already deleted).
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct = default)
+    {
+        var patient = await _repository.GetByIdAsync(id, ct);
+        if (patient is null)
+            return false;
+
+        patient.Deactivate();
+        await _repository.UpdateAsync(patient, ct);
+        return true;
     }
 
     public async Task<PatientResponse?> GetByIdAsync(Guid id, CancellationToken ct = default)

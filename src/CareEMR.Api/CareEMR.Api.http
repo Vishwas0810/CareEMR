@@ -1,6 +1,9 @@
 @CareEMR.Api_HostAddress = http://localhost:5082
 
 # FAKE TEST DATA ONLY - never use real patient information here.
+# Run request 1 first; later requests reuse the id it returns.
+# Health card numbers must be unique, so change "healthCardNumber" in request 1
+# if you run it again (otherwise you get 409 Conflict).
 
 ### 1. Create a patient (expect 201 Created)
 # @name createPatient
@@ -11,13 +14,13 @@ Content-Type: application/json
   "firstName": "Test",
   "lastName": "Patient",
   "dateOfBirth": "1985-04-12",
-  "healthCardNumber": "1234-567-890",
+  "healthCardNumber": "1111-222-333",
   "healthCardVersionCode": "ab",
   "phone": "555-0100",
   "email": "test.patient@example.com"
 }
 
-### 2. List all patients (expect 200 OK)
+### 2. List all active patients (expect 200 OK)
 GET {{CareEMR.Api_HostAddress}}/api/patients
 Accept: application/json
 
@@ -25,11 +28,42 @@ Accept: application/json
 GET {{CareEMR.Api_HostAddress}}/api/patients/{{createPatient.response.body.$.id}}
 Accept: application/json
 
-### 4. Unknown id (expect 404 Not Found)
+### 4. Update the patient (expect 200 OK). PUT replaces all fields: omitted optional fields are cleared.
+PUT {{CareEMR.Api_HostAddress}}/api/patients/{{createPatient.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "firstName": "Testy",
+  "lastName": "Patient-Updated",
+  "dateOfBirth": "1985-04-13",
+  "healthCardNumber": "1111222333",
+  "healthCardVersionCode": "CD",
+  "phone": "555-0199",
+  "email": "updated.patient@example.com"
+}
+
+### 5. Update with invalid data (expect 400 Bad Request)
+PUT {{CareEMR.Api_HostAddress}}/api/patients/{{createPatient.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "firstName": "Testy",
+  "lastName": "Patient",
+  "dateOfBirth": "2999-01-01"
+}
+
+### 6. Soft delete the patient (expect 204 No Content)
+DELETE {{CareEMR.Api_HostAddress}}/api/patients/{{createPatient.response.body.$.id}}
+
+### 7. Deleted patient is now hidden (expect 404 Not Found)
+GET {{CareEMR.Api_HostAddress}}/api/patients/{{createPatient.response.body.$.id}}
+Accept: application/json
+
+### 8. Unknown id (expect 404 Not Found)
 GET {{CareEMR.Api_HostAddress}}/api/patients/00000000-0000-0000-0000-000000000000
 Accept: application/json
 
-### 5. Same health card again (expect 409 Conflict)
+### 9. Reuse a health card that's already taken (expect 409 Conflict)
 POST {{CareEMR.Api_HostAddress}}/api/patients
 Content-Type: application/json
 
@@ -37,10 +71,10 @@ Content-Type: application/json
   "firstName": "Another",
   "lastName": "Tester",
   "dateOfBirth": "1990-01-01",
-  "healthCardNumber": "1234567890"
+  "healthCardNumber": "1111222333"
 }
 
-### 6. Invalid health card (expect 400 Bad Request)
+### 10. Invalid health card (expect 400 Bad Request)
 POST {{CareEMR.Api_HostAddress}}/api/patients
 Content-Type: application/json
 

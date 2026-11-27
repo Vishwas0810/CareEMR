@@ -25,6 +25,10 @@ public class CareEmrDbContext : DbContext
             patient.Property(p => p.Email).HasMaxLength(254);
 
             patient.HasIndex(p => p.HealthCardNumber);
+
+            // Soft delete: every query automatically skips inactive patients.
+            // Use IgnoreQueryFilters() when you really need to see them.
+            patient.HasQueryFilter(p => p.IsActive);
         });
     }
 }
