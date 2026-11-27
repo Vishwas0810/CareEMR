@@ -1,5 +1,6 @@
 using CareEMR.Application.Patients;
 using CareEMR.Infrastructure;
+using Scalar.AspNetCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,7 +24,11 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapOpenApi();                 // OpenAPI JSON at /openapi/v1.json
+    app.MapScalarApiReference(options => // Interactive docs at /scalar
+    {
+        options.Title = "CareEMR Patient Registry API";
+    });
 }
 
 app.UseHttpsRedirection();
