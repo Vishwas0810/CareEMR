@@ -167,6 +167,12 @@ Example error (`400`, ProblemDetails):
 }
 ```
 
+## Screenshots
+
+![Scalar API client showing an authenticated GET /api/patients request returning 200 OK](docs/images/scalar-demo.png)
+
+*Scalar UI: an authenticated `GET /api/patients` call (JWT from `POST /api/auth/login`) returning fake demo patients.*
+
 ## Security notes
 
 - No secrets in the repository: User Secrets locally, a gitignored `.env` for Docker.
