@@ -1,3 +1,4 @@
+using CareEMR.Application.Patients;
 using CareEMR.Infrastructure;
 
 
@@ -12,6 +13,8 @@ var connectionString = builder.Configuration.GetConnectionString("CareEmr")
     ?? throw new InvalidOperationException("Connection string 'CareEmr' not found.");
 
 builder.Services.AddInfrastructure(connectionString);
+builder.Services.AddScoped<PatientService>();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 

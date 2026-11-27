@@ -1,4 +1,5 @@
-﻿using CareEMR.Infrastructure.Persistence;
+﻿using CareEMR.Application.Patients;
+using CareEMR.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,6 +12,8 @@ public static class DependencyInjection
     {
         services.AddDbContext<CareEmrDbContext>(options =>
             options.UseNpgsql(connectionString));
+
+        services.AddScoped<IPatientRepository, PatientRepository>();
 
         return services;
     }

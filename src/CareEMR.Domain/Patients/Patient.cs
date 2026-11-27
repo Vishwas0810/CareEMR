@@ -12,7 +12,7 @@ public class Patient
     public string? Email { get; private set; }
     public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
 
-    // Needed by the database layer (EF Core) later
+    // Needed by the database layer (EF Core)
     private Patient() { }
 
     public Patient(string firstName, string lastName, DateOnly dateOfBirth)
@@ -27,5 +27,33 @@ public class Patient
         FirstName = firstName.Trim();
         LastName = lastName.Trim();
         DateOfBirth = dateOfBirth;
+    }
+
+    public void SetHealthCard(string? number, string? versionCode)
+    {
+        if (string.IsNullOrWhiteSpace(number))
+        {
+            HealthCardNumber = null;
+            HealthCardVersionCode = null;
+            return;
+        }
+
+        var digits = number.Replace(" ", "").Replace("-", "");
+        if (digits.Length != 10 || !digits.All(char.IsDigit))
+            throw new ArgumentException("Ontario health card number must be 10 digits.");
+
+        var version = versionCode?.Trim().ToUpperInvariant();
+        if (!string.IsNullOrEmpty(version) &&
+            (version.Length > 2 || !version.All(char.IsLetter)))
+            throw new ArgumentException("Version code must be 1-2 letters.");
+
+        HealthCardNumber = digits;
+        HealthCardVersionCode = string.IsNullOrEmpty(version) ? null : version;
+    }
+
+    public void UpdateContact(string? phone, string? email)
+    {
+        Phone = string.IsNullOrWhiteSpace(phone) ? null : phone.Trim();
+        Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
     }
 }
